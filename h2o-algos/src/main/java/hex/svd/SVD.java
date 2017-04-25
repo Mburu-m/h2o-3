@@ -198,7 +198,7 @@ public class SVD extends ModelBuilder<SVDModel,SVDModel.SVDParameters,SVDModel.S
         double invnorm = 0;
 
         err = 0;
-        if (norm > 0.0) {
+        if (norm > EPS) {   // norm is not too small
           invnorm = 1 / norm;
 
           for (int i = 0; i < v.length; i++) {
@@ -212,8 +212,7 @@ public class SVD extends ModelBuilder<SVDModel,SVDModel.SVDParameters,SVDModel.S
           model._output._training_time_ms.add(System.currentTimeMillis());
           model._output._history_err.add(err);
           model._output._history_eigenVectorIndex.add((double) eigIndex);
-        }
-        else {
+        } else {
           _job.warn("_train: Number of eigenvectors/eigenvalues is less than specified by user.");
           _matrixRankReached = true;
           break;
@@ -222,8 +221,8 @@ public class SVD extends ModelBuilder<SVDModel,SVDModel.SVDParameters,SVDModel.S
       }
 
       if (err > TOLERANCE) {
-        _job.warn("_train: PCA Power method failed to converge.  The eigen vectors/singular values returned" +
-                " may be close.");
+        _job.warn("_train: PCA Power method failed to converge within TOLERANCE.  Increase max_iterations or reduce " +
+                "TOLERANCE to mitigate this problem.");
       }
       _estimatedSingularValues[k] = lambda1_calc;
       return v;
